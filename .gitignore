@@ -2,9 +2,3 @@
 db.sqlite3
 /static
 *.pyc
-blog/__py_cache/*
-mysite/__py_cache/*
-blog/__pycache__/*.pyc
-blog/migrations/__pycache__/*.pyc
-blog/*.pyc
-blog/mysite/*.pyc
