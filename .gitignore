@@ -3,4 +3,5 @@ db.sqlite3
 /static
 *.pyc
 *.cpython-37.pyc
-*/__pycache__/*
+blog/__pycache__/*
+mysite/__pycache__/*
