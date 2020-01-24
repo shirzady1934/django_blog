@@ -1,0 +1,15 @@
+<html>
+<body>
+	<h1> blog login </h1>
+	<form class='site-form' action="{% url 'login' %}", method="post">
+		username:<br/>
+		<input type="text" name='username'>
+		<br/>password:<br/>
+		<input type="password" name="password">
+		{% csrf_token %}
+		<br/>
+		<input type="submit" name="login" value="login">
+	</form>
+</body>
+</html>
+
