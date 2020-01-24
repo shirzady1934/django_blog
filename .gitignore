@@ -2,6 +2,6 @@
 db.sqlite3
 /static
 *.pyc
-*.cpython-37.pyc
-blog/__pycache__/*
-mysite/__pycache__/*
+*/__pycache__/
+*/*/__pycache__/
+*/*/*/__pycache__/
