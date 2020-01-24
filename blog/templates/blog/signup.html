@@ -1,0 +1,31 @@
+<html>
+<body>
+	<a href="/blog/login"> login </a>
+	&nbsp; &nbsp;
+	<a href="/blog"> recent post </a> 
+	<br/><br/><br/>
+	<h1> sign up </h1>
+	<br/>
+	<p> <b> fill the bellow form </b> </p>
+	<form class='site-form' action="{% url 'signup' %}", method="post">
+		username:<br/>
+		<input type="text" name='username'>
+		<br/>password:<br/>
+		<input type="password" name="password">
+		<br/>
+		name:<br/>
+		<input type="text" name="name">
+		<br/>
+		age:<br/>
+		<input type="text" name="age">
+		<br/>
+		location:<br/>
+		<input type="text" name="location">
+		<br/>
+		{% csrf_token %}
+		<br/>
+		<input type="submit" name="signup" value="sign up">
+	</form>
+</body>
+</html>
+
