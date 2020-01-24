@@ -1,8 +1,25 @@
 <html>
-    <h1> Title : {{ post.title }} </h1>
     <body>
-        <p> <b> post text: </b> <br/>  {{ post.text }}  </p>
+		{% if log_status is True %}
+    		<a href="/blog/home"> home </a>
+    		&nbsp; &nbsp;
+    		<a href="/blog/logout"> logout </a>
+		{% else %}
+    		<a href="/blog/login"> login </a>
+		{% endif %}
+		<br/><br/><br/>
+		<h3> Title : {{ post.title }} </h3>
+        <p> <b> 
+		<a href="/blog/{{ post.author }}/{{ post.id }}"> post text: </a> </b> <br/> {{ post.text }}  </p>
         <p> <b> creation date of post: </b> {{ post.created_date }} </p>
-        <p> <b> This post created by: </b> {{ post.author }} <p>
+        <p> <b> This post created by: </b> 
+            <a href="/blog/{{post.author}}" > {{ post.author }} </a> </p>
+        {% if is_owner %}
+        <form class='delete-post' action="{% url 'delete_post' %}", method="post">
+	        	{% csrf_token %}
+	        	<input type='hidden' name='post_id' value= "{{ post.id }}">
+	        	<input type="submit" value='delete'>
+	        </form>
+	    {% endif %}
     </body>
 </html>

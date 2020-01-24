@@ -1,11 +1,25 @@
 <html>
     <body>
+    {% if log_status is True %}
+    <a href="/blog/home"> home </a>
+    &nbsp; &nbsp;
+    <a href="/blog/logout"> logout </a>
+    {% else %}
+    <a href="/blog/login"> login </a>
+    {% endif %}
     {% for post in post_list %}
         <h2> Title : {{ post.title }} </h2>
-        <p> <b> post text: </b> <br/>  {{ post.text }}  </p>
+        <h3> Title : {{ post.title }} </h3>
+        
+        <p> <b> 
+            <a href="/blog/{{ post.author }}/{{ post.id }}" > post text: </a>
+        </b> 
+            <br/>  
+            {{ post.text }}  
+        </p>
         <p> <b> creation date of post: </b> {{ post.created_date }} </p>
-        <p> <b> This post created by: </b> {{ post.author }} </p>
-        <p> <b> post_id: </b> {{ post.id }} </p>
+        <p> <b> This post created by: </b> 
+            <a href="/blog/{{post.author}}" > {{ post.author }} </a> </p>
         <br/><br/>
     {% endfor %}
     </body>
