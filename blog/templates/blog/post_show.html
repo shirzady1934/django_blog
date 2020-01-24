@@ -1,9 +1,8 @@
 <html>
-    <h1> Title : {{ title }} </h1>
+    <h1> Title : {{ post.title }} </h1>
     <body>
-        <p> <b> post text: </b> <br/>  {{ text }}  </p>
-        <p> <b> creation date of post: </b> {{ creation_date }} </p>
-        <p> <b> This post created by: </b> {{ author }} <p>
-        <p> <b> publish status: </b> {{ published_status }}
+        <p> <b> post text: </b> <br/>  {{ post.text }}  </p>
+        <p> <b> creation date of post: </b> {{ post.created_date }} </p>
+        <p> <b> This post created by: </b> {{ post.author }} <p>
     </body>
 </html>
