@@ -1,3 +1,3 @@
-from django.http import HttpResponse
-def hello(request):
-    return HttpResponse("Hello u r here!")
+from django.http import HttpResponse, HttpResponseRedirect
+def blog(request):
+    return HttpResponseRedirect('/blog')
