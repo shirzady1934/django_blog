@@ -5,3 +5,6 @@ db.sqlite3
 */__pycache__/
 */*/__pycache__/
 */*/*/__pycache__/
+blog/migrations
+mysite/__pycache__/
+blog/__pycache__/
