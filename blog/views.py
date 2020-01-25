@@ -8,26 +8,26 @@ from django.contrib.auth.hashers import check_password, make_password
 from django.utils import timezone
 @csrf_protect
 def submit_post(request):
-	if request.method == "POST":
-		#p_token = request.POST['token'] 
-		if 'member_id' in request.session:
-			this_user = get_object_or_404(User, pk=request.session['member_id'])
-			text = request.POST['message']
-			title = request.POST['title']
-			post = Post.objects.create(author = this_user, text = text, title = title)
-			return HttpResponseRedirect('/blog/home', "the post submited with id %d" % post.id)
-		else:
-			HttpResponse("you should first login")
+    if request.method == "POST":
+        #p_token = request.POST['token'] 
+        if 'member_id' in request.session:
+            this_user = get_object_or_404(User, pk=request.session['member_id'])
+            text = request.POST['message']
+            title = request.POST['title']
+            post = Post.objects.create(author = this_user, text = text, title = title)
+            return HttpResponseRedirect('/blog/home', "the post submited with id %d" % post.id)
+        else:
+            HttpResponse("you should first login")
 @csrf_protect
 def delete_post(request):
     if request.method == "POST":
-    	if 'member_id' in request.session:
-	        this_user = get_object_or_404(User, pk=request.session['member_id'])
-	        p_id = request.POST['post_id']
-	        this_post = get_object_or_404(Post, id=p_id)
-	        if this_post.author.username == this_user.username:
-	            this_post.delete()
-	            return HttpResponseRedirect('/blog/home', "the post have been deleted sucssesfuly")
+        if 'member_id' in request.session:
+            this_user = get_object_or_404(User, pk=request.session['member_id'])
+            p_id = request.POST['post_id']
+            this_post = get_object_or_404(Post, id=p_id)
+            if this_post.author.username == this_user.username:
+                this_post.delete()
+                return HttpResponseRedirect('/blog/home', "the post have been deleted sucssesfuly")
 @csrf_exempt
 def publish(request):
     if request.method == "POST":
@@ -100,13 +100,13 @@ def submit_comment(request):
     else:
         return HttpResponse("hello :)")
 def check_login(user, passwd):
-	try:
-		this_user = User.objects.get(username=user)
-	except:
-		return False
-	if check_password(passwd, this_user.password):
-		return True
-	return False
+    try:
+        this_user = User.objects.get(username=user)
+    except:
+        return False
+    if check_password(passwd, this_user.password):
+        return True
+    return False
 
 @csrf_protect
 def login(request):
@@ -121,23 +121,23 @@ def login(request):
             else:
                 return HttpResponse("username or pass dosent match")
     elif 'member_id' in request.session:
-    	user = User.objects.get(id=request.session['member_id'])
-    	return HttpResponseRedirect('/blog/home', "You're loged in as %s " % user)
+        user = User.objects.get(id=request.session['member_id'])
+        return HttpResponseRedirect('/blog/home', "You're loged in as %s " % user)
     else:
         return render(request, 'blog/login.html')
 def logout(request):
     request.session.flush()
     return HttpResponseRedirect('/blog/login', "You logged out")
 def home(request):
-	if 'member_id' in request.session:
-		this_user = User.objects.get(pk=request.session['member_id'])
-		this_profile = get_object_or_404(UserProfile, user=this_user)
-		posts = Post.objects.filter(author=this_user).order_by('-created_date')
-		empty = True if len(posts) is 0 else False
-		context={'profile' : this_profile, 'post_list' : posts, 'isempty' : empty}
-		return render(request, 'blog/home.html', context)
-	else:
-		return render(request, 'blog/login.html')
+    if 'member_id' in request.session:
+        this_user = User.objects.get(pk=request.session['member_id'])
+        this_profile = get_object_or_404(UserProfile, user=this_user)
+        posts = Post.objects.filter(author=this_user).order_by('-created_date')
+        empty = True if len(posts) is 0 else False
+        context={'profile' : this_profile, 'post_list' : posts, 'isempty' : empty}
+        return render(request, 'blog/home.html', context)
+    else:
+        return render(request, 'blog/login.html')
 @csrf_protect
 def sign_up(request):
     if 'member_id' in request.session:
