@@ -14,14 +14,21 @@
         <h3> Title : {{ post.title }} </h3>
         
         <p> <b> 
-            <a href="/blog/{{ post.author }}/{{ post.id }}" > post text: </a>
+            <a href="/blog/profile/{{ post.author }}/{{ post.id }}" > post text: </a>
         </b> 
             <br/>  
             {{ post.text }}  
         </p>
         <p> <b> creation date of post: </b> {{ post.created_date }} </p>
         <p> <b> This post created by: </b> 
-            <a href="/blog/{{post.author}}" > {{ post.author }} </a> </p>
+            <a href="/blog/profile/{{post.author}}" > {{ post.author }} </a> </p>
+        {% if username == post.author.username %}
+        <form class='delete-post' action="{% url 'delete_post' %}", method="post">
+                {% csrf_token %}
+                <input type='hidden' name='post_id' value= "{{ post.id }}">
+                <input type="submit" value='delete'>
+            </form>
+        {% endif %}
         <br/><br/>
     {% endfor %}
     </body>

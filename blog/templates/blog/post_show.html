@@ -10,10 +10,18 @@
 		<br/><br/><br/>
 		<h3> Title : {{ post.title }} </h3>
         <p> <b> 
-		<a href="/blog/{{ post.author }}/{{ post.id }}"> post text: </a> </b> <br/> {{ post.text }}  </p>
+		<a href="/blog/profile/{{ post.author }}/{{ post.id }}"> post text: </a> </b> <br/> {{ post.text }}  </p>
         <p> <b> creation date of post: </b> {{ post.created_date }} </p>
         <p> <b> This post created by: </b> 
-            <a href="/blog/{{post.author}}" > {{ post.author }} </a> </p>
+            <a href="/blog/profile/{{post.author}}" > {{ post.author }} </a> </p>
+        {% if log_status is True %}
+                <form class='submit_comment' action="{% url 'submit_comment' %}", method="post">
+                {% csrf_token %}
+                <input type="text" name='text'>
+                <input type='hidden' name='post_id' value= "{{ post.id }}">
+                <input type="submit" value='comment'>
+            </form>
+        {% endif %}
         {% if is_owner %}
         <form class='delete-post' action="{% url 'delete_post' %}", method="post">
 	        	{% csrf_token %}
@@ -21,5 +29,25 @@
 	        	<input type="submit" value='delete'>
 	        </form>
 	    {% endif %}
+        <br/><br/>
+        {% if not comments is None %}
+        <h3> comments: </h3>
+        <br/>
+        {% for comment in comments %}
+            <p> <b> author: 
+                <a href="/blog/profile/{{comment.author}}" > {{ comment.author }} </a>
+            </b> </p>
+            <p> <b> text:</b> <br/><br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            {{ comment.text }} </p>
+            <p> <b> commented date: </b> 
+                {{ comment.created_date }}
+            </p>
+            <br/><br/>
+        {% endfor %}
+        {% else %}
+        <p> &nbsp;&nbsp;&nbsp;&nbsp; you have no comment! </p>   
+        {% endif %}
+        <br/><br/>
     </body>
 </html>
