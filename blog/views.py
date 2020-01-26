@@ -1,11 +1,13 @@
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
-from .models import Post, Token, UserProfile, Comment
+from .models import Post, Token, UserProfile, Comment, Notification
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
 from django.contrib.auth.hashers import check_password, make_password
 from django.utils import timezone
+import re
+
 @csrf_protect
 def submit_post(request):
     if request.method == "POST":
@@ -78,7 +80,7 @@ def user_post(request, username, id):
     this_user = get_object_or_404(User, username=username)
     this_post = get_object_or_404(Post, id=id)
     is_owner = True if me != None and me.username == this_post.author.username else False
-    comments = Comment.objects.filter(post=this_post)
+    comments = Comment.objects.filter(post=this_post).order_by('-created_date')
     comments = comments if len(comments) != 0 else None
     if this_post.author.username == this_user.username:
         context = { 'post' : this_post, 'comments': comments,'log_status' : log_status, 'is_owner' : is_owner}
@@ -92,7 +94,17 @@ def submit_comment(request):
                 this_post = get_object_or_404(Post, pk=request.POST['post_id'])
                 text = request.POST['text']
                 this_user = get_object_or_404(User, id=request.session['member_id'])
-                Comment.objects.create(text=text, post=this_post, author=this_user)
+                this_comment = Comment.objects.create(text=text, post=this_post, author=this_user)
+                if this_post.author != this_user:
+                    Notification.objects.create(user=this_post.author, comment=this_comment, type='comment')
+                mentions = set(re.findall('@\w+', text))
+                if len(mentions) > 0:
+                    for mention in mentions:
+                        try:
+                            mention_user = User.objects.get(username=mention[1:])
+                            Notification.objects.create(user=mention_user, comment=this_comment, type='mention')
+                        except:
+                            pass
                 return HttpResponseRedirect('/blog/profile/%s/%d' % (this_post.author, this_post.id))
             else:
                 return HttpResponse("please fill all forms!")
@@ -169,3 +181,11 @@ def sign_up(request):
             HttpResponse("please fill up all forms")
     else:
         return render(request, 'blog/signup.html')
+def notifications(request):
+    if not 'member_id' in request.session:
+        return HttpResponseRedirect('/blog/login/')
+    this_user = User.objects.get(pk=request.session['member_id'])
+    this_notif = Notification.objects.filter(user=this_user).order_by('-created_date')[:20]
+    have_notif = False if len(this_notif) == 0 else True
+    context = {'user' : this_user.username, 'notifications' : this_notif, 'have_notif' : have_notif}
+    return render(request, 'blog/notifications.html', context)
