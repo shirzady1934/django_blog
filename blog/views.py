@@ -69,21 +69,17 @@ def new_post(request):
     news = Post.objects.order_by('-created_date')
     context = { 'post_list' : news, 'log_status' : log_status, 'username' : me}
     return render(request, 'blog/news.html', context)
-def user_post(request, username, id):
+def post_show(request, username, id):
     try:
-        me = User.objects.get(pk=request.session['member_id'])
-        log_status = True
+        client = User.objects.get(pk=request.session['member_id']).username
     except:
-        me = None
-        log_status = False
-
+        client = None
     this_user = get_object_or_404(User, username=username)
     this_post = get_object_or_404(Post, id=id)
-    is_owner = True if me != None and me.username == this_post.author.username else False
     comments = Comment.objects.filter(post=this_post).order_by('-created_date')
     comments = comments if len(comments) != 0 else None
     if this_post.author.username == this_user.username:
-        context = { 'post' : this_post, 'comments': comments,'log_status' : log_status, 'is_owner' : is_owner}
+        context = { 'post' : this_post, 'comments': comments, 'client' : client}
         return render(request, 'blog/post_show.html', context)
     else:
         return Http404("Page not found")
@@ -112,6 +108,21 @@ def submit_comment(request):
             return HttpResponse("please first login!")
     else:
         return HttpResponse("hello :)")
+@csrf_protect
+def delete_comment(request):
+    if request.method == "POST":
+        if 'member_id' in request.session:
+            this_user = get_object_or_404(User, pk=request.session['member_id'])
+            comment_id = request.POST['comment_id']
+            this_comment = get_object_or_404(Comment, id=comment_id)
+            if this_comment.author.username == this_user.username:
+                url = '/blog/profile/%s/%s' % (this_comment.post.author, this_comment.post.id)
+                this_comment.delete()
+                return HttpResponseRedirect(url, "the post have been deleted sucssesfuly")
+            else:
+                return HttpResponse("you are not owner of this comment!")
+        else:
+            return HttpResponseRedirect("/blog/login")
 def check_login(user, passwd):
     try:
         this_user = User.objects.get(username=user)
