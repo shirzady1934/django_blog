@@ -1,6 +1,6 @@
 <html>
     <body>
-        {% if log_status is True %}
+        {% if client != None %}
             <a href="/blog/home"> home </a> &nbsp; &nbsp;
             <a href="/blog">timeline</a> &nbsp; &nbsp;
             <a href="/blog/profile/notifications"> notifications </a> &nbsp; &nbsp;
@@ -18,36 +18,45 @@
 		<a href="/blog/profile/{{ post.author }}/{{ post.id }}"> post text: </a> </b> <br/> {{ post.text }}  </p>
         <p> <b> creation date of post: </b> {{ post.created_date }} </p>
         <p> <b> This post created by: </b> 
-            <a href="/blog/profile/{{post.author}}" > {{ post.author }} </a> </p>
-        {% if log_status is True %}
-                <form class='submit_comment' action="{% url 'submit_comment' %}", method="post">
+        <a href="/blog/profile/{{post.author}}" > {{ post.author }} </a> </p>
+        {% if client != None %}
+            <form class='submit_comment' action="{% url 'submit_comment' %}", method="post">
                 {% csrf_token %}
                 <input type="text" name='text'>
                 <input type='hidden' name='post_id' value= "{{ post.id }}">
                 <input type="submit" value='comment'>
             </form>
         {% endif %}
-        {% if is_owner %}
+        {% if client == post.author.username %}
         <form class='delete-post' action="{% url 'delete_post' %}", method="post">
                 {% csrf_token %}
                 <input type='hidden' name='post_id' value= "{{ post.id }}">
                 <input type="submit" value='delete'>
-            </form>
+        </form>
 	    {% endif %}
         <br/><br/>
         {% if not comments is None %}
-        <h3> comments: </h3>
+        <h2> comments: </h2>
         <br/>
         {% for comment in comments %}
-            <p> <b> author: 
-                <a href="/blog/profile/{{comment.author}}" > {{ comment.author }} </a>
-            </b> </p>
-            <p> <b> text:</b> <br/><br/>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            {{ comment.text }} </p>
-            <p> <b> commented date: </b> 
-                {{ comment.created_date }}
+            <p> 
+                <b> author: 
+                <a href="/blog/profile/{{comment.author}}" > {{ comment.author }}</a> </b> 
             </p>
+
+            <p>
+                <b> text:</b> <br/><br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                {{ comment.text }} </p>
+            <p> 
+                <b> commented date: </b> {{ comment.created_date }}
+            </p>
+            {% if client == comment.author.username %}
+                <form class='delete-comment' action="{% url 'delete_comment' %}", method="post">
+                    {% csrf_token %}
+                    <input type='hidden' name='comment_id' value= "{{ comment.id }}">
+                    <input type="submit" value='delete'>
+                </form>
+            {% endif %}
             <br/><br/>
         {% endfor %}
         {% else %}
