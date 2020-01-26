@@ -1,14 +1,20 @@
 <html>
     <body>
-		{% if log_status is True %}
-    		<a href="/blog/home"> home </a>
-    		&nbsp; &nbsp;
-    		<a href="/blog/logout"> logout </a>
-		{% else %}
-    		<a href="/blog/login"> login </a>
-		{% endif %}
-		<br/><br/><br/>
-		<h3> Title : {{ post.title }} </h3>
+        {% if log_status is True %}
+            <a href="/blog/home"> home </a>
+            &nbsp; &nbsp;
+            <a href="/blog">timeline</a>
+            &nbsp; &nbsp;
+            <a href="/blog/logout"> logout </a>
+        {% else %}
+            <a href="/blog">timeline</a>
+            &nbsp; &nbsp;
+            <a href="/blog/login"> login </a>
+        {% endif %}
+        <br/>
+        <br/>
+        <br/>
+        <h3> Title : {{ post.title }} </h3>
         <p> <b> 
 		<a href="/blog/profile/{{ post.author }}/{{ post.id }}"> post text: </a> </b> <br/> {{ post.text }}  </p>
         <p> <b> creation date of post: </b> {{ post.created_date }} </p>
@@ -24,10 +30,10 @@
         {% endif %}
         {% if is_owner %}
         <form class='delete-post' action="{% url 'delete_post' %}", method="post">
-	        	{% csrf_token %}
-	        	<input type='hidden' name='post_id' value= "{{ post.id }}">
-	        	<input type="submit" value='delete'>
-	        </form>
+                {% csrf_token %}
+                <input type='hidden' name='post_id' value= "{{ post.id }}">
+                <input type="submit" value='delete'>
+            </form>
 	    {% endif %}
         <br/><br/>
         {% if not comments is None %}
@@ -46,7 +52,7 @@
             <br/><br/>
         {% endfor %}
         {% else %}
-        <p> &nbsp;&nbsp;&nbsp;&nbsp; you have no comment! </p>   
+        <p> &nbsp;&nbsp;&nbsp;&nbsp; this post have no comment! </p>   
         {% endif %}
         <br/><br/>
     </body>

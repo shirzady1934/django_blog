@@ -9,7 +9,7 @@ from django.utils import timezone
 @csrf_protect
 def submit_post(request):
     if request.method == "POST":
-        #p_token = request.POST['token'] 
+        #p_token = request.POST['token']
         if 'member_id' in request.session:
             this_user = get_object_or_404(User, pk=request.session['member_id'])
             text = request.POST['message']
@@ -28,7 +28,7 @@ def delete_post(request):
             if this_post.author.username == this_user.username:
                 this_post.delete()
                 return HttpResponseRedirect('/blog/home', "the post have been deleted sucssesfuly")
-@csrf_exempt
+'''@csrf_exempt
 def publish(request):
     if request.method == "POST":
         p_token = request.POST['token']
@@ -42,12 +42,13 @@ def publish(request):
                 return HttpResponse("post have been published")
             else:
                 return HttpResponse("Post have been published before!")
-        return Http404("error")
+        return Http404("error")'''
 def user_show(request, username):
     try:
         me = User.objects.get(pk=request.session['member_id'])
         log_status = True
     except:
+        me = None
         log_status = False
     this_user = User.objects.get(username=username)
     post_list = [ post for post in Post.objects.filter(author = this_user).order_by('-created_date')]
@@ -119,7 +120,8 @@ def login(request):
                 request.session['member_id'] = this_user.id
                 return HttpResponseRedirect('/blog', "you loged in succesfully")
             else:
-                return HttpResponse("username or pass dosent match")
+                goback = "<a href=\"/blog/login\"> <b> username or password dosen\'t match click for go back </b> </a>"
+                return HttpResponse(goback)
     elif 'member_id' in request.session:
         user = User.objects.get(id=request.session['member_id'])
         return HttpResponseRedirect('/blog/home', "You're loged in as %s " % user)
