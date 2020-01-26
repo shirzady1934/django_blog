@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> Notifications </title>
+</head>
+<body>
+	<a href="/blog/home"> home </a> &nbsp; &nbsp;
+	<a href="/blog">timeline</a> &nbsp; &nbsp;
+	<a href="/blog/logout"> logout </a>
+	<br/><br/>
+	<h3> {{ user }} notifications: </h3>
+	<br/>
+	{% if have_notif is False %}
+		<p> you have no notifications! </p>
+	{% else %}
+	{% for notification in notifications %}
+		{% if notification.type == 'comment' %}
+			<p> 
+			<a href="/blog/profile/{{ notification.comment.author }}">
+			{{ notification.comment.author }} </a>
+			commented on your 
+			<a href="/blog/profile/{{ notification.user }}/{{ notification.comment.post.id}}"> post: </a> <br/><br/>
+			&nbsp;&nbsp;&nbsp;&nbsp;
+			{{ notification.comment.text }}
+			</p>
+			<p> <b> commented at: </b> {{ notification.created_date }} </p>
+			<br/>
+			<br/>
+		{% else %}
+			<p> 
+			<a href="/blog/profile/{{ notification.comment.author }}">
+			{{ notification.comment.author }} </a>
+			mention you on 
+			<a href="/blog/profile/{{ notification.comment.post.author }}/{{ notification.comment.post.id}}"> 
+			{{ notification.comment.post.author }} post: </a> <br/><br/>
+			&nbsp;&nbsp;&nbsp;&nbsp;
+			{{ notification.comment.text }}
+			</p>
+			<p> <b> commented at: </b> {{ notification.created_date }} </p>
+			<br/>
+			<br/>
+		{% endif %}
+	{% endfor %}
+	{% endif %}
+</body>
+</html>
