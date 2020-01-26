@@ -28,3 +28,9 @@ class Comment(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
     def __str__(self):
         return ("%s : %s" % (self.author.username, self.text))
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post_id = models.IntegerField()
+    type = models.CharField(max_length=20)
+    text = models.TextField()
+    
