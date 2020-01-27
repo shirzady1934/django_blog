@@ -6,25 +6,39 @@ from django.contrib.auth.models import User
 from django.contrib.auth import logout
 from django.contrib.auth.hashers import check_password, make_password
 from django.utils import timezone
+from django.contrib import auth
 import re
+
+def check_login(user, passwd):
+    this_user = User.objects.filter(username=user)
+    if not this_user.exists():
+        return False
+    if check_password(passwd, this_user[0].password):
+        return True
+    return False
+def check_list(words, the_list):
+    for word in words:
+        if not word in the_list:
+            return False
+    return True
 
 @csrf_protect
 def submit_post(request):
     if request.method == "POST":
         #p_token = request.POST['token']
-        if 'member_id' in request.session:
-            this_user = get_object_or_404(User, pk=request.session['member_id'])
+        if request.user.is_authenticated:
+            this_user = get_object_or_404(User, pk=request.user.id)
             text = request.POST['message']
             title = request.POST['title']
             post = Post.objects.create(author = this_user, text = text, title = title)
             return HttpResponseRedirect('/blog/home', "the post submited with id %d" % post.id)
         else:
-            HttpResponse("you should first login")
+            return HttpResponse("you should first signin")
 @csrf_protect
 def delete_post(request):
     if request.method == "POST":
-        if 'member_id' in request.session:
-            this_user = get_object_or_404(User, pk=request.session['member_id'])
+        if request.user.is_authenticated:
+            this_user = get_object_or_404(User, pk=request.user.id)
             p_id = request.POST['post_id']
             this_post = get_object_or_404(Post, id=p_id)
             if this_post.author.username == this_user.username:
@@ -45,51 +59,34 @@ def publish(request):
             else:
                 return HttpResponse("Post have been published before!")
         return Http404("error")'''
-def user_show(request, username):
-    try:
-        me = User.objects.get(pk=request.session['member_id'])
-        log_status = True
-    except:
-        me = None
-        log_status = False
-    this_user = User.objects.get(username=username)
-    post_list = [ post for post in Post.objects.filter(author = this_user).order_by('-created_date')]
+def profile(request, username):
+    this_user = get_object_or_404(User, username=username)
+    posts = Post.objects.filter(author=this_user).order_by('-created_date')
     this_profile = get_object_or_404(UserProfile, user=this_user)
-    is_owner = True if me != None and me.username == this_user.username else False
-    context = { 'post_list' : post_list, 'log_status' : log_status, 'profile' : this_profile, 'is_owner' : is_owner}
-    return render(request, 'blog/user_profile.html', context)
+    context = { 'posts' : posts, 'profile' : this_profile}
+    return render(request, 'blog/profile.html', context)
 
-def new_post(request):
-    try:
-        me = User.objects.get(pk=request.session['member_id']).username
-        log_status = True
-    except:
-        me = None
-        log_status = False
-    news = Post.objects.order_by('-created_date')
-    context = { 'post_list' : news, 'log_status' : log_status, 'username' : me}
-    return render(request, 'blog/news.html', context)
-def post_show(request, username, id):
-    try:
-        client = User.objects.get(pk=request.session['member_id']).username
-    except:
-        client = None
+def timeline(request):
+    posts = Post.objects.order_by('-created_date')
+    context = { 'posts' : posts}
+    return render(request, 'blog/timeline.html', context)
+def show_post(request, username, id):
     this_user = get_object_or_404(User, username=username)
     this_post = get_object_or_404(Post, id=id)
     comments = Comment.objects.filter(post=this_post).order_by('-created_date')
     comments = comments if len(comments) != 0 else None
     if this_post.author.username == this_user.username:
-        context = { 'post' : this_post, 'comments': comments, 'client' : client}
-        return render(request, 'blog/post_show.html', context)
+        context = { 'post' : this_post, 'comments': comments}
+        return render(request, 'blog/show_post.html', context)
     else:
         return Http404("Page not found")
 def submit_comment(request):
     if request.method == 'POST':
-        if 'member_id' in request.session:
-            if 'text' in request.POST and 'post_id' in  request.POST:
+        if request.user.is_authenticated:
+            if check_list(['text','post_id'], request.POST):
                 this_post = get_object_or_404(Post, pk=request.POST['post_id'])
                 text = request.POST['text']
-                this_user = get_object_or_404(User, id=request.session['member_id'])
+                this_user = get_object_or_404(User, pk=request.user.id)
                 this_comment = Comment.objects.create(text=text, post=this_post, author=this_user)
                 if this_post.author != this_user:
                     Notification.objects.create(user=this_post.author, comment=this_comment, type='comment')
@@ -105,14 +102,14 @@ def submit_comment(request):
             else:
                 return HttpResponse("please fill all forms!")
         else:
-            return HttpResponse("please first login!")
+            return HttpResponse("please first signin!")
     else:
         return HttpResponse("hello :)")
 @csrf_protect
 def delete_comment(request):
     if request.method == "POST":
-        if 'member_id' in request.session:
-            this_user = get_object_or_404(User, pk=request.session['member_id'])
+        if request.user.is_authenticated:
+            this_user = get_object_or_404(User, pk=request.user.id)
             comment_id = request.POST['comment_id']
             this_comment = get_object_or_404(Comment, id=comment_id)
             if this_comment.author.username == this_user.username:
@@ -122,81 +119,70 @@ def delete_comment(request):
             else:
                 return HttpResponse("you are not owner of this comment!")
         else:
-            return HttpResponseRedirect("/blog/login")
-def check_login(user, passwd):
-    try:
-        this_user = User.objects.get(username=user)
-    except:
-        return False
-    if check_password(passwd, this_user.password):
-        return True
-    return False
-
+            return HttpResponseRedirect("/blog/signin")
 @csrf_protect
-def login(request):
-    if request.method == "POST":
+def signin(request):
+    if request.user.is_authenticated:
+        return HttpResponseRedirect('/blog/home')
+    elif request.method == "POST":
         if 'username' in request.POST and 'password' in request.POST:
             user = request.POST['username']
             passwd = request.POST['password']
             if check_login(user, passwd):
                 this_user = User.objects.get(username=user)
-                request.session['member_id'] = this_user.id
+                #request.session['member_id'] = this_user.id
+                auth.login(request, this_user)
                 return HttpResponseRedirect('/blog', "you loged in succesfully")
             else:
-                goback = "<a href=\"/blog/login\"> <b> username or password dosen\'t match click for go back </b> </a>"
+                goback = "<a href=\"/blog/signin\"> <b> username or password dosen\'t match click for go back </b> </a>"
                 return HttpResponse(goback)
-    elif 'member_id' in request.session:
-        user = User.objects.get(id=request.session['member_id'])
-        return HttpResponseRedirect('/blog/home', "You're loged in as %s " % user)
     else:
-        return render(request, 'blog/login.html')
-def logout(request):
+        return render(request, 'blog/signin.html')
+def signout(request):
     request.session.flush()
-    return HttpResponseRedirect('/blog/login', "You logged out")
+    return HttpResponseRedirect('/blog/signin', "You logged out")
 def home(request):
-    if 'member_id' in request.session:
-        this_user = User.objects.get(pk=request.session['member_id'])
+    if request.user.is_authenticated:
+        this_user = User.objects.get(pk=request.user.id)
         this_profile = get_object_or_404(UserProfile, user=this_user)
         posts = Post.objects.filter(author=this_user).order_by('-created_date')
         empty = True if len(posts) is 0 else False
-        context={'profile' : this_profile, 'post_list' : posts, 'isempty' : empty}
+        context={'profile' : this_profile, 'posts' : posts, 'isempty' : empty}
         return render(request, 'blog/home.html', context)
     else:
-        return render(request, 'blog/login.html')
+        return render(request, 'blog/signin.html')
 @csrf_protect
 def sign_up(request):
-    if 'member_id' in request.session:
+    if request.user.is_authenticated:
         return HttpResponseRedirect('/blog/home')
     elif request.method == 'POST':
-        if 'username' in request.POST and 'password' in request.POST and 'name' in request.POST and 'age' in request.POST and 'location' in request.POST:
-            try:
-                User.objects.get(username=request.POST['username'].lower())
-                user_stat = False
-            except:
-                user_stat = True
-            if user_stat is False:
-                return HttpResponse("this user name has been taken")
+        if check_list(['username','password','email','name','age','location'], request.POST):
+            if User.objects.filter(username=request.POST['username'].lower()).exists():
+                return HttpResponse("this user name has been taken!")
+            if User.objects.filter(email=request.POST['email']).exists():
+                return HttpResponse("this email currently is in use!")
             username = request.POST['username'].lower()
             password = make_password(request.POST['password'])
             name = request.POST['name']
-            try:
-                age = int(request.POST['age'])
-            except:
-                age = 0
+            age = request.POST['age']
             location = request.POST['location']
             this_user = User.objects.create(username=username, password=password)
             this_profile = UserProfile.objects.create(user=this_user, name=name, age=age, location=location)
-            request.session['member_id'] = this_user.id
+            auth.login(request, this_user)
             return HttpResponseRedirect('/blog/home', "the user created succesfully")
         else:
             HttpResponse("please fill up all forms")
     else:
         return render(request, 'blog/signup.html')
 def notifications(request):
-    if not 'member_id' in request.session:
-        return HttpResponseRedirect('/blog/login/')
-    this_user = User.objects.get(pk=request.session['member_id'])
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect('/blog/signin/')
+    this_user = User.objects.get(pk=request.user.id)
     this_notif = Notification.objects.filter(user=this_user).order_by('-created_date')[:20]
     have_notif = False if len(this_notif) == 0 else True
-    context = {'user' : this_user.username, 'notifications' : this_notif, 'have_notif' : have_notif}
+    context = {'notifications' : this_notif, 'have_notif' : have_notif}
     return render(request, 'blog/notifications.html', context)
+
+def mss(request):
+    if request.user.is_authenticated:
+        return HttpResponse(request.user.id)
