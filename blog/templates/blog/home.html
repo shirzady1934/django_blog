@@ -2,13 +2,22 @@
 <body>
 	<a href="/blog">timeline</a> &nbsp; &nbsp;
 	<a href="/blog/profile/notifications"> notifications </a> &nbsp; &nbsp;
-	<a href="/blog/logout"> logout </a>
+	<a href="/blog/signout"> sign out </a>
 	<br/><br/><br/>
 	<h2> {{ profile.user.username }} profile </h2>
-	<p> <b> Name: {{ profile.name }} </b> </p>
-	<p> <b> Age: {{ profile.age }} </b> </p>
-    <p> <b> Location: {{ profile.location }} </b> </p>
+	<p> 
+		<b> Name: {{ profile.name }} </b> 
+	</p>
+	<p> 
+		<b> Age: {{ profile.age }} </b> 
+	</p>
+
+    <p> 
+    	<b> Location: {{ profile.location }} </b> 
+    </p>
+
     <br/><br/>
+    
 	<h2> send post: </h2>
     <form class='site-form' action="{% url 'submit_post' %}", method="post">
 		title: <br/>
@@ -26,7 +35,7 @@
 	{% else %}
 		<h2> Latest posts: </h2>
 		<br/>
-		{% for post in post_list %}
+		{% for post in posts %}
 	        <h3> Title : {{ post.title }} </h3>
 	        <p> <b> 
 	        	<a href="/blog/profile/{{ post.author }}/{{ post.id }}"> post text: </a> </b> 

@@ -6,9 +6,9 @@
 <body>
 	<a href="/blog/home"> home </a> &nbsp; &nbsp;
 	<a href="/blog">timeline</a> &nbsp; &nbsp;
-	<a href="/blog/logout"> logout </a>
+	<a href="/blog/signout"> sing out </a>
 	<br/><br/>
-	<h3> {{ user }} notifications: </h3>
+	<h3> {{ user.username }} notifications: </h3>
 	<br/>
 	{% if have_notif is False %}
 		<p> you have no notifications! </p>
