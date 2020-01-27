@@ -1,16 +1,16 @@
 <html>
-{% if log_status is True %}
+{% if user.is_authenticated %}
     <a href="/blog/home"> home </a>&nbsp; &nbsp;
     <a href="/blog/profile/notifications"> notifications </a> &nbsp; &nbsp;
-    <a href="/blog/logout"> logout </a>
+    <a href="/blog/signout"> sign out </a>
 {% else %}
-    <a href="/blog/login"> login </a>
+    <a href="/blog/signin"> sign in </a>
     &nbsp; &nbsp;
-    <a href="/blog/signup"> create an account </a>
+    <a href="/blog/signup"> sign up </a>
 {% endif %}
 <br/><br/><br/>
     <body>
-     {% for post in post_list %}
+     {% for post in posts %}
         <h3> Title : {{ post.title }} </h3>
         
         <p> <b> 
@@ -22,7 +22,7 @@
         <p> <b> creation date of post: </b> {{ post.created_date }} </p>
         <p> <b> This post created by: </b> 
             <a href="/blog/profile/{{post.author}}" > {{ post.author }} </a> </p>
-        {% if username == post.author.username %}
+        {% if user.username == post.author.username %}
         <form class='delete-post' action="{% url 'delete_post' %}", method="post">
                 {% csrf_token %}
                 <input type='hidden' name='post_id' value= "{{ post.id }}">

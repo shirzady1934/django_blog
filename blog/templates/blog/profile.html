@@ -1,13 +1,13 @@
 <html>
     <body>
-    {% if log_status is True %}
+    {% if user.is_authenticated %}
     <a href="/blog/home"> home </a> &nbsp; &nbsp;
     <a href="/blog">timeline</a> &nbsp; &nbsp;
     <a href="/blog/profile/notifications"> notifications </a> &nbsp; &nbsp;
-    <a href="/blog/logout"> logout </a>
+    <a href="/blog/signout"> sign out </a>
     {% else %}
     <a href="/blog">timeline</a> &nbsp; &nbsp;
-    <a href="/blog/login"> login </a>
+    <a href="/blog/signin"> sign in </a>
     {% endif %}
     <br/><br/><br/>
     <h2> {{ profile.user.username }} profile </h2>
@@ -15,7 +15,7 @@
     <p> <b> Age: {{ profile.age }} </b> </p>
     <p> <b> Location: {{ profile.location }} </b> </p>
     <br/><br/><br/>
-    {% for post in post_list %}
+    {% for post in posts %}
         <h3> Title : {{ post.title }} </h3>
         
         <p> <b> 
@@ -27,7 +27,7 @@
         <p> <b> creation date of post: </b> {{ post.created_date }} </p>
         <p> <b> This post created by: </b> 
             <a href="/blog/profile/{{post.author}}" > {{ post.author }} </a> </p>
-        {% if is_owner %}
+        {% if post.author.username == user.username %}
         <form class='delete-post' action="{% url 'delete_post' %}", method="post">
                 {% csrf_token %}
                 <input type='hidden' name='post_id' value= "{{ post.id }}">
