@@ -1,6 +1,6 @@
 <html>
 <body>
-	<a href="/blog/login"> login </a>
+	<a href="/blog/signin"> sign in </a>
 	&nbsp; &nbsp;
 	<a href="/blog"> recent post </a> 
 	<br/><br/><br/>
@@ -9,15 +9,18 @@
 	<p> <b> fill the bellow form </b> </p>
 	<form class='site-form' action="{% url 'signup' %}", method="post">
 		username:<br/>
-		<input type="text" name='username'>
+		<input type="text" name='username' pattern=".{4,15}">
 		<br/>password:<br/>
-		<input type="password" name="password">
+		<input type="password" name="password" pattern=".{8,}">
+		<br/>
+		email:<br/>
+		<input type="email" name=email>
 		<br/>
 		name:<br/>
-		<input type="text" name="name">
+		<input type="text" name="name" pattern=".{4,}">
 		<br/>
 		age:<br/>
-		<input type="text" name="age">
+		<input type="number" name="age" min="10" max="120">
 		<br/>
 		location:<br/>
 		<input type="text" name="location">
