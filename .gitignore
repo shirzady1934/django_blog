@@ -1,4 +1,5 @@
 .env
+requirement.txt
 db.sqlite3
 /static
 *.pyc
