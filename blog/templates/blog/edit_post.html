@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>edit your post</title>
+</head>
+<body>
+    <a href="/blog/home"> home </a> &nbsp; &nbsp;
+    <a href="/blog">timeline</a> &nbsp; &nbsp;
+    <a href="/blog/profile/notifications"> notifications </a> &nbsp; &nbsp;
+    <a href="/blog/signout"> sing out </a>
+    <br/>
+    <br/>
+    <br/>
+    <h3> Title : {{ post.title }} </h3>
+    <p> <b> 
+	<a href="/blog/profile/{{ post.author }}/{{ post.id }}"> post text: </a> </b> <br/> {{ post.text }}  </p>
+    <p> <b> creation date of post: </b> {{ post.created_date }} </p>
+    <p> <b> This post created by: </b> 
+    <a href="/blog/profile/{{post.author}}" > {{ post.author }} </a> </p>
+    <form class='delete-post' action="{% url 'delete_post' %}", method="post">
+        {% csrf_token %}
+        <input type='hidden' name='post_id' value= "{{ post.id }}">
+        <input type="submit" value='delete'>
+    </form>
+    <br/>
+    <br/>
+    <br/>
+	<h4> {{ user.username }} you are editing your post: </h4>
+    <form class='site-form' action="{{ request.path }}", method="post">
+		title: 
+		<br/>
+		<input type="text" name='title' value="{{ post.title }}">
+		<br/>
+		message: 
+		<br/>
+		<input type="text" name="text" value="{{ post.text }}">
+		<br/>
+		<input type="submit" value="post" value>
+		{% csrf_token %}
+	</form>
+</body>
+</html>
