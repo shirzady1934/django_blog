@@ -183,6 +183,37 @@ def notifications(request):
     context = {'notifications' : this_notif, 'have_notif' : have_notif}
     return render(request, 'blog/notifications.html', context)
 
+@csrf_protect
+def edit_post(request, pk):
+    if request.method == 'GET':
+        if request.user.is_authenticated:
+            post = get_object_or_404(Post, pk=pk)
+            if post.author.username == request.user.username:
+                context = { 'post' : post }
+                return render(request, 'blog/edit_post.html', context)
+            else:
+                return HttpResponse("ERROR 400 BAD_REQUEST")
+        else:
+            return HttpResponseRedirect('/blog/signin')
+
+    elif request.method == 'POST':
+        if request.user.is_authenticated:
+            post = get_object_or_404(Post, pk=pk)
+            if request.user.username == post.author.username:
+                if check_list(['title', 'text'], request.Post):
+                    post.title = request.POST['title']
+                    post.text = request.POST['text']
+                    post.save()
+                    return HttpResponseRedirect('/blog/profile/%s/%s' % (post.author.username, post.id))
+                else:
+                    return HttpResponse("Please fill up the form!")
+            else:
+                return HttpResponse('ERROR 400 BAD_REQUEST')
+        else:
+            return HttpResponseRedirect('/blog/signin')
+
+
+
 def mss(request):
     if request.user.is_authenticated:
         return HttpResponse(request.user.id)
