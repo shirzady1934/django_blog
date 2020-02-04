@@ -13,11 +13,6 @@ class Post(models.Model):
     created_date = models.DateTimeField(default=timezone.now) 
     def __str__(self):
         return self.title
-class Token(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    token = models.CharField(max_length = 20)
-    def __str__(self):
-        return self.token
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=25)
