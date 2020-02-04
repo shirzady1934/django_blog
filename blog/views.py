@@ -216,7 +216,7 @@ def edit_post(request, pk):
 
 @csrf_protect
 def get_token(request, username):
-    if request.user.is_authenticated and request.user.username == username:
+    if request.user.username == username:
         token = Token.objects.get(user=request.user)
         message = ''
         if request.method == 'POST' and request.POST['generate'] == 'True':
@@ -224,6 +224,8 @@ def get_token(request, username):
             token = Token.objects.create(user=request.user)
             message = 'the new token have generated succesfully!'
         return render(request, 'blog/token.html', context={'token' : token, 'message': message})
+    elif request.user.is_authenticated:
+        return HttpResponseRedirect('/blog/profile/%s/token/' % request.user.username)
     else:
         return HttpResponseRedirect('/blog/signin')
 
