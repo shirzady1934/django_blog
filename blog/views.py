@@ -7,6 +7,7 @@ from django.contrib.auth import logout
 from django.contrib.auth.hashers import check_password, make_password
 from django.utils import timezone
 from django.contrib import auth
+from rest_framework.authtoken.models import Token
 import re
 
 def check_login(user, passwd):
@@ -151,6 +152,7 @@ def home(request):
         return render(request, 'blog/home.html', context)
     else:
         return render(request, 'blog/signin.html')
+
 @csrf_protect
 def sign_up(request):
     if request.user.is_authenticated:
@@ -212,7 +214,18 @@ def edit_post(request, pk):
         else:
             return HttpResponseRedirect('/blog/signin')
 
-
+@csrf_protect
+def get_token(request, username):
+    if request.user.is_authenticated and request.user.username == username:
+        token = Token.objects.get(user=request.user)
+        message = ''
+        if request.method == 'POST' and request.POST['generate'] == 'True':
+            token.delete()
+            token = Token.objects.create(user=request.user)
+            message = 'the new token have generated succesfully!'
+        return render(request, 'blog/token.html', context={'token' : token, 'message': message})
+    else:
+        return HttpResponseRedirect('/blog/signin')
 
 def mss(request):
     if request.user.is_authenticated:
