@@ -8,6 +8,7 @@ urlpatterns = [
         path('submit_comment/', views.submit_comment, name='submit_comment'),
         path('delete_comment/', views.delete_comment, name='delete_comment'),
         path('profile/notifications/', views.notifications, name='notifications'),
+        path('profile/<str:username>/token/', views.get_token, name='get_token'),
         path('profile/<str:username>/<int:id>/', views.show_post, name = 'posts'),
         path('profile/<str:username>/', views.profile, name='profile'),
         path('', views.timeline, name='timeline'),
