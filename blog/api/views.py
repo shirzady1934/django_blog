@@ -8,7 +8,7 @@ from blog.models import Post
 @api_view(['GET'])
 @permission_classes([])
 def all_post(request):
-	queryset = Post.objects.all()
+	queryset = Post.objects.all().order_by('-created_date')
 	serializer = PostSerializer(queryset, many=True)
 	return Response(serializer.data)
 
