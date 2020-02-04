@@ -1,0 +1,18 @@
+<html>
+<body>
+	<a href="/blog/home">home</a> &nbsp; &nbsp;
+	<a href="/blog">timeline</a> &nbsp; &nbsp;
+	<a href="/blog/profile/notifications"> notifications </a> &nbsp; &nbsp;
+	<a href="/blog/signout"> sign out </a>
+	<br/><br/><br/>
+	{{ message }}
+	<br/><br/><br/>
+	<p> <b> Your token is: {{ token }} </b> </p>
+    <form class='generate' action="/blog/profile/{{ user.username }}/token/", method="post">
+    	{% csrf_token %}
+    	<input type="hidden" name="generate" value="True">
+    	<input type="submit" value="generate">
+	</form>
+	<p> click for genereate another token! </p>
+</body>
+</html>
